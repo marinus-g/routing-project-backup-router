@@ -1,5 +1,13 @@
 #!/bin/bash
-sudo cp interfaces /etc/network/interfaces
-sudo cp sysctl.conf /etc/sysctl.conf
-sudo cp resolv.conf /etc/resolv.conf
-sudo systemctl restart networking
+
+if [ "$USER" != "root" ]; then
+	echo "Please execute this script as root!"
+	exit 0
+fi
+
+cp interfaces /etc/network/interfaces
+cp sysctl.conf /etc/sysctl.conf
+cp resolv.conf /etc/resolv.conf
+systcl -p
+systemctl restart networking
+echo "Installed Router"
