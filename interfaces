@@ -1,0 +1,39 @@
+# This file describes the network interfaces availabel on your system
+# and how to activate them. For more information, see interfaces(5)
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The internal network interface
+allow-hotplug enp0s8
+iface enp0s8 inet dhcp
+
+# The primary network interface
+# The primary network defines the router network
+
+allow-hotplug enp0s3
+iface enp0s3 inet static
+  address 10.0.0.145
+  netmask 255.255.255.248
+  network 10.0.0.144
+  broadcast 10.0.0.151
+
+###########
+# IP TABLES
+###########
+  post-up iptables -t nat -A POSTROUTING -o enp0s8 -j MASQUERADE
+  post-up iptables -A FORWARD -i enp0s8 -o enp0s3 -m state --state RELATED,ESTABLISHED -j ACCEPT
+  post-up iptables -A FORWARD -i enp0s3 -o enp0s8 -j ACCEPT
+  post-down iptables -F
+###########
+# Routes
+###########
+  post-up route del -net 0.0.0.0
+  post-up route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.168.178.1
+  post-up route add -net 10.0.0.0/26 gw 10.0.0.146
+  post-up route add -net 10.0.0.64/27 gw 10.0.0.147
+  post-up route add -net 10.0.0.96/27 gw 10.0.0.148
+  post-up route add -net 10.0.0.144/29 gw 10.0.0.145
